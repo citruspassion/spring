@@ -1,0 +1,136 @@
+第一种静态工厂
+用于解决无法通过无参构造来创建的情况，比如该类就没有无参构造，或者一些抽象类
+所以我们同样无法通过spring进行构造，于是就用静态工厂
+加载配置时，读取到配置的factory-method，spring就知道这是一个静态工厂，它就不会在去通过反射创建对象，它就会根据配置找打对应的工厂类并调用factory-method配置的方法。
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--静态工厂-->
+    <bean id="uuuu" class="com.andy.User" factory-method="getUser"/>
+    理论上这个id是随意取的，看到下面你就明白了
+ 
+</beans>
+public class User {
+  private User(){
+  }
+  // 对于静态工厂，一般不会让对象被外界new出来，所以将构造器设置为private
+
+ public static UserList getUser(){
+    UserList us=new UserList();
+    us.u();
+    return u;
+ }
+
+}
+public class UserList{
+public void u(){
+ System.out.println("wang-ming")
+}
+}
+
+ ApplicationContext ac = new ClassPathXmlApplicationContext("applicationContext.xml");
+ 读取这句话后开始加载配置，于是就读到了 factory-method,知道了这是一个静态工厂，所以不去反射创建，而去调用方法创建
+ 也就我们的getUser
+UserList us= UserList.getUser();  //底层就是这个
+然后将创建出来的对象放进map.于是就有了上面id的作用，就是key map.put("uuuu",us)
+相当与我们的getbean（"uuuu"）
+
+
+实例工厂也可以解决类是无法通过无参构造创建的问题，解决的思路和静态工厂类似，只不过实例工厂提供的方法不是静态的。
+spring需要先创建出实例工厂的对象，在调用实例工厂对象上指定的普通方法来创建对象
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--静态工厂-->
+    <bean id="factory" class="com.andy.User" />
+     <bean id="uuuu" factory-bean="factory" factory-method="getUser"/>
+public class User {
+
+
+ public UserList getUser(){
+    UserList us=new UserList();
+    us.u();
+    return u;
+ }
+
+}
+流程就是通过加载配置，发现了bean，于是通过反射创建了一个对象。相当于
+Class ss=Class.forName(com.andy.User);
+Object object=ss.newInstance();
+map.put("factory",object)
+紧接着读下一句bean ,
+map.get（）方法拿到了这个对象
+User u=(User)map.get("factory");
+UserList us=u.getuser();
+然后将他存入map
+
+Spring内置了工厂接口，也可以通过实现这个接口来开发Spring工厂，通过这个工厂创建对象
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--静态工厂-->
+    <bean id="uuuu" class="com.andy.User" />
+
+
+
+
+public class User implements FactoryBean<UserLiset> {
+    /**
+     *生产对象的方法
+     */
+    @Override
+    public UserList getObject() throws Exception {
+       UserList us=new UserList();
+    us.u();
+    return u;
+    }
+ 
+    /**
+     * 获取目标对象类型的方法
+     */
+    @Override
+    public Class<?> getObjectType() {
+        return UserList.class;
+    }
+ 
+    /**
+     * 用来控制目标对象是否是单例的方法
+     *  false:多例--例如用户的购物车对象
+     *  true:单例
+     */
+    @Override
+    public boolean isSingleton() {
+        return true;
+    }
+
+流程：
+加载配置，找到了bean标签，企图用反射创建，但是发现这个类实现了一个FactoryBean接口,知道了这时一个spring工厂
+
+Class ss=Class.forName(com.andy.User);
+User u=ss.newInstance();
+u.getObject()将结果装map
+
+
+
+
+=================================================================
+引用
+单例和多例
+单例是什么？
+内存中只有一个对象，每次获取到的该对象的地址值是相同的
+多实例是什么？
+内存中的每次创建的对象都是一个新的对象，他们的地址值都是不同的
+问题1.每次获取对象的时候，spring是新创建一个对象还是始终给我们返回的是同一个对象
+答：spring默认的情况下创建的对象都是单例的，（每次返回的对象都是同一个）
+ 		scope="singleton" 单例(默认值)
+        scope="prototype" 多例
+        scope="request" 创建的对象放到request域中
+        scope="session" 创建对象放到session对象
+————————————————
+版权声明：本文为CSDN博主「然木酥」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/xinxin_____/article/details/108968468
