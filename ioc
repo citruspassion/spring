@@ -89,3 +89,8 @@ Car car=new Car(frame);
 
 }
 https://www.zhihu.com/question/23277575
+依赖注入的三种方式
+无非是
+1。构造器注入
+2.setter注入，
+3.接口注入
