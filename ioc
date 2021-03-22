@@ -10,4 +10,82 @@
 总体来说就是基于 依赖倒置原则，采取依赖注入的方法
 
 
+Class Car{
+private Frame frame;
+Car(){
+this.frame=new Frame();
+public void run()
+
+}
+}
+Class Frame{
+private Tire tire;
+Frame(){
+this.tire=new Tire();
+
+}
+Class Tire{
+private int size;
+Tire(){
+this.size=10;
+
+}
+这样就可以想用哪个值就用那个，可是这样也出现一个问题，我们没法动态改，只能提前知道size
+如果要用动态赋值就得这样
+
+Class Car{
+private Frame frame;
+Car(int size){
+this.frame=new Frame(size);
+public void run()
+
+}
+}
+Class Frame{
+private Tire tire;
+Frame(int size){
+this.tire=new Tire(size);
+
+}
+Class Tire{
+private int size;
+Tire(int size){
+this.size=size;
+
+}
+int size=40;
+Car car=new Car(size);
+car.run();
+我们可以看出这样非常的麻烦，如果这都变得很复杂，那就显得很不合适
+
+Class Car{
+private Frame frame;
+Car(Frame frame){
+this.frame=frame;
+public void run()
+
+}
+}
+Class Frame{
+private Tire tire;
+Frame(Tire tire){
+this.tire=tire;
+
+}
+Class Tire{
+private int size;
+Tire(int size){
+this.size=size;
+
+}
+int size=10;
+Tire tire=new Tire(size);
+Frame frame=new Frame(tire);
+Car car=new Car(frame);
+我们这样就可以动态修改
+
+
+
+
+}
 https://www.zhihu.com/question/23277575
