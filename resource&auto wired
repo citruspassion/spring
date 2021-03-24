@@ -1,0 +1,9 @@
+都是用来 自动装配的， 可以放在属性字段上
+
+@Autowired 通过byType实现的，而且这个对象必须存在   属于springframe包
+
+
+@Resource 默认通过byname来实现，如果找不到则会通过byType实现，如果两个都找不到就报错  属于java.annotation
+
+
+执行顺序不同
