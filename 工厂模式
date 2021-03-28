@@ -20,7 +20,7 @@ public class User {
  public static UserList getUser(){
     UserList us=new UserList();
     us.u();
-    return u;
+    return us;
  }
 
 }
@@ -37,6 +37,22 @@ UserList us= UserList.getUser();  //底层就是这个
 然后将创建出来的对象放进map.于是就有了上面id的作用，就是key map.put("uuuu",us)
 相当与我们的getbean（"uuuu"）
 
+
+
+通过注解   public class userFactory {
+	@Bean
+	public static UserList  getUser() {
+              
+		return new UserLiss();
+	}
+}
+
+
+@Configuration
+@Import(userFactory.class)
+public class Bean_Config {
+
+}
 
 实例工厂也可以解决类是无法通过无参构造创建的问题，解决的思路和静态工厂类似，只不过实例工厂提供的方法不是静态的。
 spring需要先创建出实例工厂的对象，在调用实例工厂对象上指定的普通方法来创建对象
